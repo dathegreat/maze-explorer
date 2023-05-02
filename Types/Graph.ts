@@ -129,4 +129,16 @@ export class Graph{
         ctx.closePath()
     }
 
+    getWalls(){
+        const walls = []
+        for(let i=0; i < this.cells.length; i++){
+            for(let j=0; j < this.cells[i].length; j++){
+                for(const side of this.cells[i][j].sides){
+                    walls.push(side)
+                }
+            }
+        }
+        return walls
+    }
+
 }
