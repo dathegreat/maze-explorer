@@ -40,7 +40,7 @@ export class RayCaster{
     getRayLengths(){
         const rayLengths: number[] = new Array(this.rays.length)
         for(let i=0; i < this.rays.length; i++){
-            rayLengths[i] = (vectorLength(subtractVectors(this.rays[i][1], this.rays[i][0])))
+            rayLengths[i] = (vectorLength(subtractVectors(this.rays[i][1], this.rays[i][0]))) * Math.cos(-this.FOV + (this.FOV / this.resolution) * i)
         }
         return rayLengths
     }
