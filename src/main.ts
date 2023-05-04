@@ -5,9 +5,10 @@ import { Player } from "../Types/Player"
 
 const topDownCanvas: any = document.getElementById("top-down")
 const topDownCtx = topDownCanvas.getContext('2d')
-topDownCanvas.width = window.innerWidth * 0.2
-topDownCanvas.height = window.innerHeight * 0.2
-topDownCtx.scale(0.3,0.3)
+const topCanvasScale = 0.2
+topDownCanvas.width = window.innerWidth * topCanvasScale
+topDownCanvas.height = window.innerHeight * topCanvasScale
+topDownCtx.scale(topCanvasScale * 1.5, topCanvasScale * 1.5)
 
 const firstPersonCanvas: any = document.getElementById("first-person")
 const firstPersonCtx = firstPersonCanvas.getContext('2d')
@@ -29,7 +30,7 @@ rayCaster.castRays(walls)
 rayCaster.drawRays(topDownCtx, "red")
 
 const player = new Player(rayCaster, {x:10,y:10}, rayCaster.direction, 5)
-player.draw(topDownCtx, "blue")
+player.drawTopDown(topDownCtx, "blue")
 
 const drawBackground = (ctx: CanvasRenderingContext2D, skyColor: string, groundColor: string) =>{
     ctx.fillStyle = skyColor
@@ -43,7 +44,8 @@ const animationLoop = () =>{
     topDownCtx.clearRect(0,0,topDownCanvas.width*5,topDownCanvas.height*5)
     drawBackground(firstPersonCtx, "lightblue", "rgb(71, 42, 42)")
     player.rayCaster.drawRays(topDownCtx, "green")
-    player.draw(topDownCtx, "blue")
+    player.drawTopDown(topDownCtx, "blue")
+    player.drawFirstPerson(firstPersonCtx)
     graph.draw(topDownCtx, "black")
     screen.drawWalls(firstPersonCtx, player.rayCaster.rays)
     
@@ -53,7 +55,7 @@ const animationLoop = () =>{
 const physicsLoop = (lastCalled: number) =>{
     rayCaster.castRays(walls)
     const timeDelta = performance.now() - lastCalled
-    player.applyMomentum(timeDelta)
+    player.applyMomentum(timeDelta, graph.getWalls())
     setTimeout(()=>{physicsLoop(performance.now())}, 0)
 }
 

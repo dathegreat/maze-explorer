@@ -1,5 +1,5 @@
 import { Point } from "../Types/Point"
-import { rayWall } from "../Types/CollisionTester"
+import { collisionRayWall } from "../Types/CollisionTester"
 import { Ray } from "../Types/Ray"
 import { rotateVector, scaleVector, vectorLength, subtractVectors, addVectors } from "../Types/VectorMath"
 import { Wall } from "./Wall"
@@ -61,7 +61,7 @@ export class RayCaster{
 
     testCollision(ray: Ray, walls: Wall[][]){
         for(let wall=0; wall<walls.length; wall++){
-            const collision = rayWall(ray, walls[wall])
+            const collision = collisionRayWall(ray, walls[wall])
             if( collision ){
                 ray.terminus = collision
                 ray.length = vectorLength(subtractVectors(ray.terminus, ray.origin))
