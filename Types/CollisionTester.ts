@@ -1,12 +1,13 @@
 import { Point } from "./Point";
+import { Ray } from "./Ray";
 
-export const rayWall = (ray: Point[], wall: Point[]) =>{
-        const x1 = ray[0].x
-        const x2 = ray[1].x
+export const rayWall = (ray: Ray, wall: Point[]) =>{
+        const x1 = ray.origin.x
+        const x2 = ray.terminus.x
         const x3 = wall[0].x
         const x4 = wall[1].x
-        const y1 = ray[0].y
-        const y2 = ray[1].y
+        const y1 = ray.origin.y
+        const y2 = ray.terminus.y
         const y3 = wall[0].y
         const y4 = wall[1].y
         // calculate the distance to intersection point

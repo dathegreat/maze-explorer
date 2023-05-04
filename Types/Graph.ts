@@ -1,5 +1,7 @@
 import { Point } from "../Types/Point"
 import { Cell } from "../Types/Cell"
+import { Wall } from "../Types/Wall"
+import { Color, colorToString } from "../Types/Color"
 
 
 const generateCells = (size: Point, resolution: Point): Cell[][] =>{
@@ -13,10 +15,14 @@ const generateCells = (size: Point, resolution: Point): Cell[][] =>{
         for(let column = 0; column < size.x; column++){
             cells[row][column] = {
                 sides: [
-                    [{x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2)}, {x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2)}],
-                    [{x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2)}, {x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2)}],
-                    [{x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2)}, {x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2)}],
-                    [{x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2)}, {x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2)}],
+                    [{x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}, 
+                        {x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}],
+                    [{x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}, 
+                        {x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}],
+                    [{x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}, 
+                        {x: (column * sideLength.x) + (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}],
+                    [{x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) - (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}, 
+                        {x: (column * sideLength.x) - (sideLength.x / 2) + (sideLength.x / 2), y: (row * sideLength.y) + (sideLength.y / 2) + (sideLength.y / 2), color: randomColor()}],
                     
                 ],
                 visited: false,
@@ -28,8 +34,12 @@ const generateCells = (size: Point, resolution: Point): Cell[][] =>{
     return cells
 }
 
-const randInt = (min: number, max: number): number =>{
+const randomInt = (min: number, max: number): number =>{
     return Math.floor(Math.random() * max) + min
+}
+
+const randomColor = (): Color =>{
+    return {r: randomInt(0,255), g: randomInt(0,255), b: randomInt(0,255), a: randomInt(0,255)}
 }
 
 const pointEqualsPoint = (a: Point, b: Point) =>{
@@ -57,12 +67,12 @@ export class Graph{
         ctx.closePath()
     }
 
-    draw(ctx: CanvasRenderingContext2D, color: string){
-        ctx.strokeStyle = color
+    draw(ctx: CanvasRenderingContext2D, color?: string){
         ctx.lineWidth = 2
         for(let i=0; i < this.cells.length; i++){
             for(let j=0; j < this.cells[i].length; j++){
                 for(const side of this.cells[i][j].sides){
+                    ctx.strokeStyle = colorToString(side[0].color)
                     this.drawLineFromSide(ctx, side)
                 }
             }
@@ -98,14 +108,14 @@ export class Graph{
     //https://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm
     generateMaze(){
         const cellStack: Cell[] = []
-        const startingCell = this.cells[ randInt(0, this.size.y) ][ randInt(0, this.size.x) ]
+        const startingCell = this.cells[ randomInt(0, this.size.y) ][ randomInt(0, this.size.x) ]
         startingCell.visited = true
         cellStack.push(startingCell)
         while(cellStack.length > 0){
             const currentCell = cellStack[cellStack.length - 1]
             const unvisitedNeighbors = this.getNeighbors(currentCell).filter( (cell)=> !cell.visited )
             if(unvisitedNeighbors.length > 0){
-                const randomUnvisitedNeighbor = unvisitedNeighbors[randInt(0, unvisitedNeighbors.length)]
+                const randomUnvisitedNeighbor = unvisitedNeighbors[randomInt(0, unvisitedNeighbors.length)]
                 this.clearWallBetween(currentCell, randomUnvisitedNeighbor)
                 randomUnvisitedNeighbor.visited = true
                 cellStack.push(randomUnvisitedNeighbor)

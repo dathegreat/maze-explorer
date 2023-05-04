@@ -1,22 +1,35 @@
+import { Color, colorToString } from "./Color"
+import { Ray } from "./Ray"
 export class Screen{
     width: number
     height: number
     diagonal: number
+    gamma: number
 
-    constructor(width: number, height: number){
+    constructor(width: number, height: number, gamma: number){
         this.width = width
         this.height = height
         this.diagonal = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))
+        this.gamma = gamma
     }
 
-    drawWalls(ctx: CanvasRenderingContext2D, wallHeights: number[], color: string){
+    drawWalls(ctx: CanvasRenderingContext2D, rays: Ray[]){
         const wallWidth = 1
-        ctx.fillStyle = color
-        for(let wall=0; wall<wallHeights.length; wall++){
-            const lineHeight = (this.height / wallHeights[wall]) * 10
-            const lineColor = 255 - (wallHeights[wall] * 255 / this.diagonal)
-            ctx.fillStyle = `rgba(${lineColor},${lineColor},${lineColor},1)`
-            ctx.fillRect(wallWidth * wall, ((this.height - lineHeight) / 2), wallWidth, lineHeight)
+        for(let ray=0; ray<rays.length; ray++){
+            const lineHeight = (this.height / rays[ray].length) * 10
+            const lineColor = this.adjustColorForDistance(rays[ray].color, rays[ray].length)
+            ctx.fillStyle = colorToString(lineColor)
+            ctx.fillRect(wallWidth * ray, ((this.height - lineHeight) / 2), wallWidth, lineHeight)
+        }
+    }
+
+    adjustColorForDistance(color: Color, distance: number){
+        const inverseSquare = 1 / Math.sqrt(distance / this.diagonal)
+        return {
+            r: color.r * inverseSquare / this.gamma,
+            g: color.g * inverseSquare / this.gamma,
+            b: color.b * inverseSquare / this.gamma,
+            a: color.a
         }
     }
 }
