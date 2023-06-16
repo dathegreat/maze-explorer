@@ -10,6 +10,7 @@ export class Player{
     velocity: Point
     maxVelocity: number
     acceleration: Point
+    gravity: Point
     maxAcceleration: number
     facing: Point
     rotationalVelocity: number
@@ -20,9 +21,10 @@ export class Player{
     constructor(rayCaster: RayCaster, position: Point, facing: Point, size: number ){
         this.rayCaster = rayCaster
         this.position = position
-        this.velocity = {x:0, y:0}
+        this.velocity = {x:0, y:0, z:0}
         this.maxVelocity = 100
-        this.acceleration = {x:0, y:0}
+        this.acceleration = {x:0, y:0, z:0}
+        this.gravity = {x: 0, y: 0, z: -10}
         this.maxAcceleration = 2000
         this.facing = scaleVector(facing, 1/vectorLength(facing))
         this.rotationalVelocity = 0
@@ -55,6 +57,10 @@ export class Player{
 
     updatePosition(position: Point){
         this.position = position
+        if(this.position.z < 0){
+            this.position.z = 0
+            this.acceleration.z = 0
+        }
         this.rayCaster.updatePosition(position)
     }
 
@@ -62,10 +68,14 @@ export class Player{
         const timeDeltaInSeconds = timeDelta / 1000
         this.velocity = addVectors(this.velocity, scaleVector(this.acceleration, timeDeltaInSeconds))
         this.velocity = scaleVector(this.velocity, Math.pow(this.frictionCoefficient, timeDeltaInSeconds))
-        const moveLateral = addVectors(this.position, scaleVector(getNormal(this.facing), this.velocity.x * timeDeltaInSeconds))
-        const moveVertical = addVectors(moveLateral, scaleVector(this.facing, this.velocity.y * timeDeltaInSeconds))
-        if(!collisionPlayerWalls(this.position, moveVertical, walls)){
-            this.updatePosition(moveVertical)
+        const moveX = addVectors(this.position, scaleVector(getNormal(this.facing), this.velocity.x * timeDeltaInSeconds))
+        const moveY = addVectors(moveX, scaleVector(this.facing, this.velocity.y * timeDeltaInSeconds))
+        const moveZ = {...moveY, z: moveY.z + this.velocity.z}
+        if(this.position.z > 0){    
+            this.acceleration = addVectors(this.acceleration, scaleVector(this.gravity, timeDelta))
+        }
+        if(!collisionPlayerWalls(this.position, moveY, walls)){
+            this.updatePosition(moveZ)
         }
     }
 

@@ -3,7 +3,7 @@ import { Point } from "./Point";
 import { Ray } from "./Ray";
 import { Wall } from "./Wall";
 
-export const collisionRayWall = (ray: Ray, wall: Point[]) =>{
+export const collisionRayWall = (ray: Ray, wall: Wall[]) =>{
         const x1 = ray.origin.x
         const x2 = ray.terminus.x
         const x3 = wall[0].x
@@ -21,7 +21,7 @@ export const collisionRayWall = (ray: Ray, wall: Point[]) =>{
             const intersectionX = x1 + (uA * (x2-x1));
             const intersectionY = y1 + (uA * (y2-y1));
     
-            return {x: intersectionX, y: intersectionY};
+            return {x: intersectionX, y: intersectionY, z:0};
         }
         return false;
 }
